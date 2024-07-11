@@ -31,7 +31,7 @@ export default class App extends React.Component {
                         <AntDesign name="plus" size={16} color={colors.blue} />
                     </TouchableOpacity>
 
-                    <Text style={styles.add}>Add List {tempData.length}</Text>
+                    <Text style={styles.add}>Add List</Text>
                 </View>
 
                 <View style={{height: 275, paddingLeft: 32 }}>
