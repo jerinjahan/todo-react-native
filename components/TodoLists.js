@@ -51,5 +51,11 @@ const styles = StyleSheet.create({
         fontSize: 48,
         fontWeight: "200",
         color: colors.white
+    },
+    subtitle: {
+        color: colors.white
+    },
+    remaining: {
+        color: colors.white
     }
 })
