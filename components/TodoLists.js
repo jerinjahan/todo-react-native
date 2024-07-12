@@ -21,14 +21,17 @@ export default class TodoLists extends React.Component {
 
     render() {
         const list = this.props.list;
-
         const completedCount = list.todos.filter(todo => todo.completed).length;
         const remainingCount = list.todos.length - completedCount;
 
         return (
             <View>
                 <Modal animationType="slide" visible={this.state.showlistVisible} onRequestClose={ () => this.toggleListModal() }>
-                    <TodoModal list={list} closeModal={() => this.toggleListModal()} />
+                    <TodoModal 
+                        list={list} 
+                        closeModal={() => this.toggleListModal()}  
+                        updateList={this.props.updateList}
+                    />
                 </Modal>
 
 
