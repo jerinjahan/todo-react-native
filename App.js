@@ -7,7 +7,8 @@ import {
     View,
     TouchableOpacity, 
     FlatList,
-    Modal 
+    Modal,
+    ActivityIndicator 
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
@@ -15,12 +16,40 @@ import colors from './Colors';
 import tempData from './tempData';
 import TodoLists from './components/TodoLists';
 import AddListModal from './components/AddListModal';
+// import Fire from './Fire';
+
+import {db,collection, getDocs,addDoc,doc,query,where,deleteDoc} from "./Config";
+import firebase from 'firebase/compat/app';
 
 export default class App extends React.Component {
     state = {
         addTodoVisiable : false,
-        lists : tempData
+        lists : tempData,
+        user : {},
+        // loading : true
+        loading : false
     }
+    componentDidMount(){
+        // firebase = new Fire((error, user) => {
+        //     if(error){
+        //         return alert("Uh oh, something went wrong");
+        //     }
+        // });
+
+        // firebase.getLists(lists => {
+        //     this.setState({lists, user}, () => {
+        //         this.setState({ loading : false });
+        //     })
+        // });
+
+        // this.setState({ user });
+    }
+
+    componentWillUnmount() {
+        // firebase.detach();
+    }
+
+
     toggleAddTodoModal() {
         this.setState({ addTodoVisiable: !this.state.addTodoVisiable });
     }
@@ -42,6 +71,14 @@ export default class App extends React.Component {
     };
 
     render() {
+        if(this.state.loading){
+            return(
+                <View style={styles.container}>
+                    <ActivityIndicator size="large" color={colors.blue} />
+                </View>
+            )
+        }
+
         return (
             <View style={styles.container}>
                 <Modal 
@@ -51,6 +88,10 @@ export default class App extends React.Component {
                 >
                     <AddListModal closeModal={() => this.toggleAddTodoModal()} addList={this.addList} />
                 </Modal>
+
+                <View>
+                    {/* <Text>User: {this.state.user.uid} </Text> */}
+                </View>
 
                 <View style={{flexDirection : "row"}}>
                     <View style={styles.divider} />
@@ -71,7 +112,7 @@ export default class App extends React.Component {
                 <View style={{height: 275, paddingLeft: 32 }}>
                     <FlatList 
                         data={this.state.lists}
-                        keyExtractor={item => item.name}
+                        keyExtractor={item => item.id.toString()}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                         renderItem={({ item }) => this.renderList(item) } 
