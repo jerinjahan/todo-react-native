@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, KeyboardAvoidingView, TouchableOpacity, TextInput } from "react-native";
+import { Text, StyleSheet, View, KeyboardAvoidingView, Pressable, TextInput } from "react-native";
 import React from "react";
 import { AntDesign } from '@expo/vector-icons';
 import colors from "../Colors";
@@ -24,7 +24,7 @@ export default class AddListModal extends React.Component {
     renderColors(){
         return this.backgroundColors.map(color => {
             return (
-                <TouchableOpacity 
+                <Pressable 
                     key={color} 
                     style={[styles.colorSelect, {backgroundColor: color } ]} 
                     onPress={() => this.setState({ color })} 
@@ -36,9 +36,9 @@ export default class AddListModal extends React.Component {
     render() {
         return (
             <KeyboardAvoidingView style={styles.container} behavior="padding">
-                <TouchableOpacity style={{ position: "absolute", top: 16, right:32 }} onPress={() => this.props.closeModal()}>
+                <Pressable style={{ position: "absolute", top: 16, right:32 }} onPress={() => this.props.closeModal()}>
                     <AntDesign name="close" size={24} color={colors.black} />
-                </TouchableOpacity>
+                </Pressable>
 
                 <View style={{alignSelf: "stretch", marginHorizontal: 32, borderColor: "red", borderWidth: 0 }}>
                     <Text style={styles.title}>Create Todo List</Text>
@@ -52,12 +52,12 @@ export default class AddListModal extends React.Component {
                         { this.renderColors() }
                     </View>
 
-                    <TouchableOpacity 
+                    <Pressable 
                         style={[styles.create, {backgroundColor : this.state.color}]}
                         onPress={this.createTodo}
                     >
                         <Text style={{color: colors.white, fontWeight: "600"}}>Create!</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
             </KeyboardAvoidingView>
         )

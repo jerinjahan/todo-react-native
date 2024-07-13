@@ -3,7 +3,7 @@ import {
     StyleSheet,
     Text,
     View,
-    TouchableOpacity,
+    Pressable,
     Modal
 } from 'react-native';
 import colors from '../Colors';
@@ -35,7 +35,7 @@ export default class TodoLists extends React.Component {
                 </Modal>
 
 
-                <TouchableOpacity 
+                <Pressable 
                     style={ [styles.listContainer, { backgroundColor:list.color }]}
                     onPress={() => this.toggleListModal()} 
                     >
@@ -55,7 +55,7 @@ export default class TodoLists extends React.Component {
                         </View>
         
                     </View>
-                </TouchableOpacity>
+                </Pressable>
             </View>
         )
     }

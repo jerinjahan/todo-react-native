@@ -1,9 +1,9 @@
-import firebase from "firebase";
-import { Firestore } from "firebase/firestore";
+// import firebase from "firebase/app";
+// import { Firestore,getFirestore } from "firebase/firestore";
 
 
-// import { initializeApp } from "firebase/app";
-// import { getFirestore } from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
 
 const firebaseConfig = {
@@ -17,7 +17,6 @@ const firebaseConfig = {
 
 
 // Initialize Firebase
-
 // const app = initializeApp(firebaseConfig);
 // // Export firestore database
 // // It will be imported into your react app whenever it is needed
@@ -30,7 +29,7 @@ class Fire {
 
     init(callback) {
         if (!firebase.apps.length){
-            firebase.initializeApp(firebaseConfig);
+            firebase(firebaseConfig);
         }
 
         firebase.auth().onAuthStateChanged(user => {

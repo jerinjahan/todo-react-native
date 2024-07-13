@@ -3,7 +3,7 @@ import {
     StyleSheet, 
     View, 
     KeyboardAvoidingView, 
-    TouchableOpacity, 
+    Pressable, 
     TextInput, 
     SafeAreaView,
     FlatList,
@@ -41,14 +41,14 @@ export default class TodoModal extends React.Component {
     renderTodo = (todo, index) => {
         return (
             <View style={styles.todoContainer}>
-                <TouchableOpacity onPress={() => this.toggleTodoCompleted(index)}>
+                <Pressable onPress={() => this.toggleTodoCompleted(index)}>
                     <Ionicons 
                         name={todo.completed? 'checkbox' : 'square-outline'} 
                         size={24} 
                         color={colors.gray} 
                         style={{ width : 32 }} 
                     />
-                </TouchableOpacity>
+                </Pressable>
                 <Text style={[styles.todo, {textDecorationLine: todo.completed ? "line-through": "none", color: todo.completed ? colors.gray : colors.black } ]}>{todo.title}</Text>
             </View>
         );
@@ -62,12 +62,12 @@ export default class TodoModal extends React.Component {
         return (
             <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
                 <SafeAreaView style={styles.container}>
-                    <TouchableOpacity 
+                    <Pressable 
                         style={{position: "absolute", top: 16, right: 32, zIndex:10 }}
                         onPress={this.props.closeModal}
                     >
                         <AntDesign name="close" size={24} color={colors.black} />
-                    </TouchableOpacity>
+                    </Pressable>
 
                     <View style={[styles.section, styles.header,{ borderBlockColor: list.color }]}>
                         <View>
@@ -92,12 +92,12 @@ export default class TodoModal extends React.Component {
                             onChangeText={text => this.setState({newTodo : text})} 
                             value={this.state.newTodo}
                         />
-                        <TouchableOpacity 
+                        <Pressable 
                             style={[styles.addTodo, {backgroundColor: list.color }]}
                             onPress={() => this.addTodo()}
                         >
                             <AntDesign name="plus" size={16} color={colors.white} />
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
                 </SafeAreaView>
             </KeyboardAvoidingView>
