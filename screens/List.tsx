@@ -20,7 +20,7 @@ import { AntDesign, Ionicons,Entypo } from '@expo/vector-icons';
 import colors from '../Colors';
 import TodoLists from './TodoLists';
 import AddListModal from '../modals/AddListModal';
-import TodoModal from '../components/TodoModal';
+import TodoModal from '../modals/TodoModal';
 
 
 // export interface Todo {
@@ -37,19 +37,26 @@ const List = () => {
 	const [addTodoVisiable, setAddTodoVisiable] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [lists, setLists] = useState<any[]>([]);
+	const [selectedItem, setSelectedItem] = useState(null);
 
     const [showlistVisible, setShowlistVisible] = useState(false);
 
     const toggleAddTodoModal = () => {
         setAddTodoVisiable(!addTodoVisiable );
     }
-    const toggleListModal = () =>{
+    const toggleListModal = (item) =>{
+        setSelectedItem(item);
         setShowlistVisible(!showlistVisible);
     }
 
     useEffect(() => {
+
+        // const querySnapshot = await getDocs(collection(FIRESTORE_DB, "task-lists"));
+        //     querySnapshot.forEach((doc) => {
+        //     console.log(`${doc.id} => ${doc.data()}`);
+        // });
+
         const todoRef = collection(FIRESTORE_DB, 'task-lists');
-    
         const subscriber = onSnapshot(todoRef, {
             next: (snapshot) => {
                 const todos: any[] = [];
@@ -74,6 +81,10 @@ const List = () => {
         const completedCount = item.todos.filter(todo => todo.completed).length;
         const remainingCount = item.todos.length - completedCount;
 
+        // console.log('Total todos => ',item.todos.length);
+        // console.log('completedCount => ',completedCount);
+        // console.log('remainingCount => ',completedCount);
+
         const toggleDone = async () => {
             updateDoc(ref, { done: !item.done });
         };
@@ -88,20 +99,12 @@ const List = () => {
                 50,
             );
         };
+
         return (
             <View>
-                <Modal animationType="slide" visible={showlistVisible} onRequestClose={ () => toggleListModal() }>
-                    <TodoModal 
-                        list={item} 
-                        closeModal={() => toggleListModal()}  
-                        updateList={updateList}
-                    />
-                </Modal>
-
-
                 <Pressable 
                     style={ [styles.listContainer, { backgroundColor:item.color }]}
-                    onPress={() => toggleListModal()} 
+                    onPress={() => toggleListModal(item)} 
                 >
                     <Text style={styles.listTitle} numberOfLines={1}>
                         {item.name}
@@ -175,7 +178,7 @@ const List = () => {
             <View style={{flexDirection : "row"}}>
                 <View style={styles.divider} />
                 <Text style={styles.title}>
-                    Todo <Text style={{fontWeight: "300", color: colors.blue}}>Lists {lists.length} </Text>
+                    Todo <Text style={{fontWeight: "300", color: colors.blue}}>Lists</Text>
                 </Text>
                 <View style={styles.divider} />
             </View>
@@ -205,6 +208,19 @@ const List = () => {
                         // renderItem={({ item }) => renderList(item) } 
                         keyboardShouldPersistTaps="always"
                     />
+
+
+                    <Modal 
+                        animationType="slide" 
+                        visible={showlistVisible} 
+                        onRequestClose={ () => toggleListModal(selectedItem) }
+                    >
+                        <TodoModal 
+                            selectedItem={selectedItem} 
+                            closeModal={() => toggleListModal(selectedItem)} 
+                        />
+                    </Modal>
+
                 </View>
             )}
         </View>
