@@ -1,31 +1,51 @@
-import { View, StyleSheet, TextInput, Button, SafeAreaView, TouchableOpacity, FlatList } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { 
+    View, 
+    StyleSheet, 
+    TextInput, 
+    Button, 
+    SafeAreaView, 
+    TouchableOpacity,
+    Pressable, 
+    FlatList,
+    Text,
+    ToastAndroid,
+    Modal,
+    ActivityIndicator 
+} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../FirebaseConfig';
-import { Ionicons,Entypo } from '@expo/vector-icons';
+import { AntDesign, Ionicons,Entypo } from '@expo/vector-icons';
 
-export interface Todo {
-	done: boolean;
-	id: string;
-	title: string;
-}
+import colors from '../Colors';
+import TodoLists from './TodoLists';
+import AddListModal from '../modals/AddListModal';
+import TodoModal from '../components/TodoModal';
+
+
+// export interface Todo {
+// 	id: string;
+// 	name: string;
+// 	color: string;
+//     done: boolean;
+//     todos: any [];
+// }
 
 const List = () => {
 	const [todos, setTodos] = useState<any[]>([]);
-	const [todo, setTodo] = useState('');
 
-	const addTodo = async () => {
-        try {
-            const docRef = await addDoc(collection(FIRESTORE_DB, 'todos'), {
-                title: todo,
-                done: false
-            });
-            setTodo('');
-            console.log('Document written with ID: ', docRef.id);
-        } catch (e) {
-            console.error('Error adding document: ', e);
-        }
-    };
+	const [addTodoVisiable, setAddTodoVisiable] = useState(false);
+	const [loading, setLoading] = useState(true);
+	const [lists, setLists] = useState<any[]>([]);
+
+    const [showlistVisible, setShowlistVisible] = useState(false);
+
+    const toggleAddTodoModal = () => {
+        setAddTodoVisiable(!addTodoVisiable );
+    }
+    const toggleListModal = () =>{
+        setShowlistVisible(!showlistVisible);
+    }
 
     useEffect(() => {
         const todoRef = collection(FIRESTORE_DB, 'task-lists');
@@ -39,8 +59,9 @@ const List = () => {
                         ...doc.data()
                     });
                 });
-    
-                setTodos(todos);
+                // console.log('all tasks = ',todos);
+                setLists(todos);
+                setLoading(false);
             }
         });
     
@@ -48,50 +69,141 @@ const List = () => {
         return () => subscriber();
     }, []);
 
-
-
     const renderTodo = ({ item }: any) => {
-        const ref = doc(FIRESTORE_DB, `todos/${item.id}`);
-    
+        const ref = doc(FIRESTORE_DB, `task-lists/${item.id}`);
+        const completedCount = item.todos.filter(todo => todo.completed).length;
+        const remainingCount = item.todos.length - completedCount;
+
         const toggleDone = async () => {
             updateDoc(ref, { done: !item.done });
         };
     
         const deleteItem = async () => {
             deleteDoc(ref);
+            ToastAndroid.showWithGravityAndOffset(
+                'Task deleted!',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+            );
         };
-    
         return (
-            <View style={styles.todoContainer}>
-                <TouchableOpacity onPress={toggleDone} style={styles.todo}>
-                    {/* {item.done && <Ionicons name="md-checkmark-circle" size={32} color="green" />} */}
-                    {!item.done && <Entypo name="circle" size={32} color="black" />}
-                    {/* <Text style={styles.todoText}>{item.title}</Text> */}
-                </TouchableOpacity>
-                <Ionicons name="trash-bin-outline" size={24} color="red" onPress={deleteItem} />
+            <View>
+                <Modal animationType="slide" visible={showlistVisible} onRequestClose={ () => toggleListModal() }>
+                    <TodoModal 
+                        list={item} 
+                        closeModal={() => toggleListModal()}  
+                        updateList={updateList}
+                    />
+                </Modal>
+
+
+                <Pressable 
+                    style={ [styles.listContainer, { backgroundColor:item.color }]}
+                    onPress={() => toggleListModal()} 
+                >
+                    <Text style={styles.listTitle} numberOfLines={1}>
+                        {item.name}
+                    </Text>
+        
+                    <View>
+                        <View style={{ alignItems: "center" }}>
+                            <Text style={styles.count}>{completedCount}</Text>
+                            <Text style={styles.subtitle}>Remaining</Text>
+                        </View>
+        
+                        <View style={{ alignItems: "center" }}>
+                            <Text style={styles.count}>{remainingCount}</Text>
+                            <Text style={styles.remaining}>Completed</Text>
+                        </View>
+                    </View>
+                </Pressable>
             </View>
         );
     };
 
+    const addList = async ({ name, color }: any) => {
+        try {
+            console.log('\n \n newly added todo = ',name , color);
+            const docRef = await addDoc(collection(FIRESTORE_DB, 'task-lists'), {
+                name: name,
+                color: color,
+                done: false,
+                todos: []
+            });
+            console.log('Document written with ID: ', docRef.id);
+            ToastAndroid.showWithGravityAndOffset(
+                'New task creacted!',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+            );
+        } catch (e) {
+            console.error('Error adding document: ', e);
+            ToastAndroid.showWithGravityAndOffset(
+                'Error creating task!',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+            );
+        }
+    };
+    const updateList = ({ list }: any) => {
+        // this.setState({
+        //     lists : this.state.lists.map(item => {
+        //         return item.id === list.id ? list : item;
+        //     })
+        // })
+    };
+
 	return (
 		<View style={styles.container}>
-            <View style={styles.form}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Add new todo"
-                    onChangeText={(text) => setTodo(text)}
-                    value={todo}
+            <Modal 
+                animationType="slide" 
+                visible={addTodoVisiable}
+                onRequestClose={() => toggleAddTodoModal()}
+            >
+                <AddListModal 
+                    addList={addList} 
+                    closeModal={() => toggleAddTodoModal()} 
                 />
-                <Button onPress={addTodo} title="Add Todo" disabled={todo === ''} />
+            </Modal>
+
+            <View style={{flexDirection : "row"}}>
+                <View style={styles.divider} />
+                <Text style={styles.title}>
+                    Todo <Text style={{fontWeight: "300", color: colors.blue}}>Lists {lists.length} </Text>
+                </Text>
+                <View style={styles.divider} />
             </View>
 
-            {todos.length > 0 && (
-                <View>
-                    <FlatList
-                        data={todos}
+            <View style={{ marginVertical: 48 }}>
+                <Pressable style={styles.addList} onPress={() => toggleAddTodoModal() }>
+                    <AntDesign name="plus" size={16} color={colors.blue} />
+                </Pressable>
+
+                <Text style={styles.add}>Add List</Text>
+            </View>
+
+            {loading && (
+                <View style={styles.indicatorContainer}>
+                    <ActivityIndicator size="large" color={colors.blue} />
+                </View>
+            )}
+
+            {lists.length > 0 && !loading  && (
+                <View style={{height: 275, paddingLeft: 32 }}>
+                    <FlatList 
+                        data={lists}
+                        keyExtractor={item => item.id.toString()}
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false}
                         renderItem={renderTodo}
-                        keyExtractor={(todo) => todo.id}
-                        // removeClippedSubviews={true}
+                        // renderItem={({ item }) => renderList(item) } 
+                        keyboardShouldPersistTaps="always"
                     />
                 </View>
             )}
@@ -101,37 +213,74 @@ const List = () => {
 
 const styles = StyleSheet.create({
 	container: {
-		marginHorizontal: 20
-	},
-	form: {
-		marginVertical: 20,
-		flexDirection: 'row',
-		alignItems: 'center'
-	},
-	input: {
-		flex: 1,
-		height: 40,
-		borderWidth: 1,
-		borderRadius: 4,
-		padding: 10,
-		backgroundColor: '#fff'
-	},
-	todo: {
-		flexDirection: 'row',
-		flex: 1,
-		alignItems: 'center'
-	},
-	todoText: {
-		flex: 1,
-		paddingHorizontal: 4
-	},
-	todoContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		backgroundColor: '#fff',
-		padding: 10,
-		marginVertical: 4
-	}
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderColor: 'red',
+        borderWidth: 0
+    },
+    divider: {
+        backgroundColor: colors.lightBlue,
+        height: 1,
+        flex: 1,
+        alignSelf: "center"
+    },
+    title: {
+        fontSize: 38,
+        fontWeight: "800",
+        color: colors.black,
+        paddingHorizontal: 64
+    },
+    addList: {
+        borderWidth: 2,
+        borderColor: colors.lightBlue,
+        borderRadius: 4,
+        padding: 16,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    add: {
+        color: colors.blue,
+        fontWeight: "600",
+        fontSize: 14,
+        marginTop: 8
+    },
+    indicatorContainer: {
+        // flex: 1,
+        // backgroundColor: '#fff',
+        alignItems: 'center',
+        // justifyContent: 'center',
+        // borderColor: 'red',
+        borderWidth: 0
+    },
+
+
+    listContainer: {
+        paddingVertical: 32,
+        paddingHorizontal: 16,
+        borderRadius: 6,
+        marginHorizontal: 12,
+        alignItems: "center",
+        width: 200
+    },
+    listTitle: {
+        fontSize: 24,
+        fontWeight: "700",
+        color: colors.white,
+        marginBottom: 18
+    },
+    count: {
+        fontSize: 48,
+        fontWeight: "200",
+        color: colors.white
+    },
+    subtitle: {
+        color: colors.white
+    },
+    remaining: {
+        color: colors.white
+    }
 });
 
 export default List;
