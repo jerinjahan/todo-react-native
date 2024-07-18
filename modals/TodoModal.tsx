@@ -2,15 +2,11 @@ import {
     View, 
     StyleSheet, 
     TextInput, 
-    Button, 
     SafeAreaView, 
-    TouchableOpacity,
     Pressable, 
     FlatList,
     Text,
     ToastAndroid,
-    Modal,
-    ActivityIndicator,
     KeyboardAvoidingView,
     Keyboard 
 } from 'react-native';

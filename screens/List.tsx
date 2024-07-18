@@ -10,7 +10,8 @@ import {
     Text,
     ToastAndroid,
     Modal,
-    ActivityIndicator 
+    ActivityIndicator, 
+    Alert
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
@@ -21,6 +22,8 @@ import colors from '../Colors';
 import TodoLists from './TodoLists';
 import AddListModal from '../modals/AddListModal';
 import TodoModal from '../modals/TodoModal';
+
+import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 
 // export interface Todo {
@@ -40,6 +43,7 @@ const List = () => {
 	const [selectedItem, setSelectedItem] = useState(null);
 
     const [showlistVisible, setShowlistVisible] = useState(false);
+    const [showDeleteAlertModal, setShowDeleteAlertModal] = useState(false);
 
     const toggleAddTodoModal = () => {
         setAddTodoVisiable(!addTodoVisiable );
@@ -48,6 +52,42 @@ const List = () => {
         setSelectedItem(item);
         setShowlistVisible(!showlistVisible);
     }
+
+    const toggleDeleteAlert = (item) =>{
+        console.log('hit');
+        setSelectedItem(item);
+        setShowDeleteAlertModal(!showDeleteAlertModal);
+    }
+
+    const createTwoButtonAlert = (item) =>
+        Alert.alert('', 'Are you sure want to delete this task?', [
+        {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+        },
+        {text: 'OK', onPress: async () => {
+            const ref = doc(FIRESTORE_DB, `task-lists/${item.id}`);
+            try {
+                await deleteDoc(ref);
+                ToastAndroid.showWithGravityAndOffset(
+                    'Task deleted!',
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                    25,
+                    50,
+                );
+            } catch (error) {
+                ToastAndroid.showWithGravityAndOffset(
+                    error,
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                    25,
+                    50,
+                );
+            }
+        }},
+    ]);
 
     useEffect(() => {
 
@@ -88,23 +128,13 @@ const List = () => {
         const toggleDone = async () => {
             updateDoc(ref, { done: !item.done });
         };
-    
-        const deleteItem = async () => {
-            deleteDoc(ref);
-            ToastAndroid.showWithGravityAndOffset(
-                'Task deleted!',
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-                25,
-                50,
-            );
-        };
 
         return (
             <View>
                 <Pressable 
                     style={ [styles.listContainer, { backgroundColor:item.color }]}
                     onPress={() => toggleListModal(item)} 
+                    onLongPress={() => createTwoButtonAlert(item)}
                 >
                     <Text style={styles.listTitle} numberOfLines={1}>
                         {item.name}
@@ -205,11 +235,8 @@ const List = () => {
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                         renderItem={renderTodo}
-                        // renderItem={({ item }) => renderList(item) } 
                         keyboardShouldPersistTaps="always"
                     />
-
-
                     <Modal 
                         animationType="slide" 
                         visible={showlistVisible} 
