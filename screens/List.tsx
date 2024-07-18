@@ -1,10 +1,6 @@
 import { 
     View, 
     StyleSheet, 
-    TextInput, 
-    Button, 
-    SafeAreaView, 
-    TouchableOpacity,
     Pressable, 
     FlatList,
     Text,
@@ -13,26 +9,14 @@ import {
     ActivityIndicator, 
     Alert
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../FirebaseConfig';
-import { AntDesign, Ionicons,Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
 import colors from '../Colors';
-import TodoLists from './TodoLists';
 import AddListModal from '../modals/AddListModal';
 import TodoModal from '../modals/TodoModal';
-
-import Swipeable from 'react-native-gesture-handler/Swipeable';
-
-
-// export interface Todo {
-// 	id: string;
-// 	name: string;
-// 	color: string;
-//     done: boolean;
-//     todos: any [];
-// }
 
 const List = () => {
 	const [todos, setTodos] = useState<any[]>([]);
@@ -43,7 +27,6 @@ const List = () => {
 	const [selectedItem, setSelectedItem] = useState(null);
 
     const [showlistVisible, setShowlistVisible] = useState(false);
-    const [showDeleteAlertModal, setShowDeleteAlertModal] = useState(false);
 
     const toggleAddTodoModal = () => {
         setAddTodoVisiable(!addTodoVisiable );
@@ -51,12 +34,6 @@ const List = () => {
     const toggleListModal = (item) =>{
         setSelectedItem(item);
         setShowlistVisible(!showlistVisible);
-    }
-
-    const toggleDeleteAlert = (item) =>{
-        console.log('hit');
-        setSelectedItem(item);
-        setShowDeleteAlertModal(!showDeleteAlertModal);
     }
 
     const createTwoButtonAlert = (item) =>
@@ -120,10 +97,6 @@ const List = () => {
         const ref = doc(FIRESTORE_DB, `task-lists/${item.id}`);
         const completedCount = item.todos.filter(todo => todo.completed).length;
         const remainingCount = item.todos.length - completedCount;
-
-        // console.log('Total todos => ',item.todos.length);
-        // console.log('completedCount => ',completedCount);
-        // console.log('remainingCount => ',completedCount);
 
         const toggleDone = async () => {
             updateDoc(ref, { done: !item.done });
@@ -228,7 +201,7 @@ const List = () => {
             )}
 
             {lists.length > 0 && !loading  && (
-                <View style={{height: 275, paddingLeft: 32 }}>
+                <View style={{height: 275, paddingLeft: 16 }}>
                     <FlatList 
                         data={lists}
                         keyExtractor={item => item.id.toString()}

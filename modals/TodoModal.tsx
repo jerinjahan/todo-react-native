@@ -52,10 +52,8 @@ const TodoModal = ({ selectedItem,closeModal }) => {
     const taskDocRef = doc(FIRESTORE_DB, 'task-lists', `${selectedItem.id}`);
 
 
-    const toggleTodoCompleted = async (todo,index) => {
-        console.log('before click ', todos[index]);
+    const toggleTodoCompleted = async (index) => {
         todos[index].completed = !todos[index].completed;
-        console.log('after click ', todos[index]);
         try {
             await updateDoc(taskDocRef, {
                 todos: todos
@@ -144,7 +142,7 @@ const TodoModal = ({ selectedItem,closeModal }) => {
     const renderTodo = (todo, index) => {
         return (
             <View style={styles.todoContainer}>
-                <Pressable onPress={() => toggleTodoCompleted(todo,index)}>
+                <Pressable onPress={() => toggleTodoCompleted(index)}>
                     <Ionicons 
                         name={todo.completed? 'checkbox' : 'square-outline'} 
                         size={24} 
