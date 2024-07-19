@@ -1,13 +1,37 @@
 //@ts-nocheck
 
-import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View,Image, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View,Image, TextInput,ToastAndroid } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
 import colors from '../Colors';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { FIREBASE_AUTH } from '../FirebaseConfig';
 
 const SignUpScreen = () => {
     const navigation = useNavigation();
+    const [ name, setName ] = useState('');
+    const [ email, setEmail ] = useState('');
+    const [ password, setPassword ] = useState('');
+
+    const handleSubmit = async() => {
+        if(name && email && password){
+            try {
+                await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
+            } catch (error) {
+                console.log('got error : ', error)
+            }
+        }else{
+            ToastAndroid.showWithGravityAndOffset(
+                'Please enter email and password',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+            );
+        }
+    }
+
     return (
         <View className="flex-1 bg-white" style={{ backgroundColor: colors.theme }}>
             <SafeAreaView className="flex">
@@ -36,7 +60,8 @@ const SignUpScreen = () => {
                         <Text className="text-gray-700 ml-4">Full Name</Text>
                         <TextInput 
                             className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-3"
-                            value="John Doe"
+                            value={name}
+                            onChangeText={value => setName(value)}
                             placeholder="Enter Name"
                         />
 
@@ -44,7 +69,8 @@ const SignUpScreen = () => {
                         <Text className="text-gray-700 ml-4">Email Address</Text>
                         <TextInput 
                             className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-3"
-                            value="john@gmail.com"
+                            value={email}
+                            onChangeText={value => setEmail(value)}
                             placeholder="Enter Email"
                         />
 
@@ -52,11 +78,15 @@ const SignUpScreen = () => {
                         <TextInput 
                             className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-7"
                             secureTextEntry
-                            value="test1234"
+                            value={password}
+                            onChangeText={value => setPassword(value)}
                             placeholder="Enter Password"
                         />
 
-                        <TouchableOpacity className="py-3 bg-yellow-400 rounded-xl">
+                        <TouchableOpacity 
+                            className="py-3 bg-yellow-400 rounded-xl"
+                            onPress={handleSubmit}
+                        >
                             <Text className="font-xl font-bold text-center text-gray-700">
                                 Sign Up
                             </Text>

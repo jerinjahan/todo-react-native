@@ -1,13 +1,45 @@
+
 //@ts-nocheck
 
-import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View,Image, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View,Image, TextInput,ToastAndroid } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
 import colors from '../Colors';
+import { FIREBASE_AUTH } from '../FirebaseConfig';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const LoginScreen = () => {
     const navigation = useNavigation();
+    const [ email, setEmail ] = useState('');
+    const [ password, setPassword ] = useState('');
+
+    const handleSubmit = async() => {
+        if(email && password){
+            try {
+                await signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
+            } catch (error) {
+                console.log('got error : ', error)
+                ToastAndroid.showWithGravityAndOffset(
+                    error,
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                    25,
+                    50,
+                );
+            }
+        }else{
+            console.log('enter else function');
+            ToastAndroid.showWithGravityAndOffset(
+                'Please enter email and password',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+            );
+        }
+    }
+
     return (
         <View className="flex-1 bg-white" style={{ backgroundColor: colors.theme }}>
             <SafeAreaView className="flex">
@@ -36,7 +68,8 @@ const LoginScreen = () => {
                         <Text className="text-gray-700 ml-4">Email Address</Text>
                         <TextInput 
                             className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-3"
-                            value="john@gmail.com"
+                            value={email}
+                            onChangeText={value => setEmail(value)}
                             placeholder="Enter Email"
                         />
 
@@ -44,7 +77,8 @@ const LoginScreen = () => {
                         <TextInput 
                             className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-3"
                             secureTextEntry
-                            value="test1234"
+                            value={password}
+                            onChangeText={value => setPassword(value)}
                             placeholder="Enter Password"
                         />
 
@@ -52,7 +86,7 @@ const LoginScreen = () => {
                             <Text className="text-gray-700">Forgot Password?</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity className="py-3 bg-yellow-400 rounded-xl">
+                        <TouchableOpacity className="py-3 bg-yellow-400 rounded-xl" onPress={handleSubmit}>
                             <Text className="font-xl font-bold text-center text-gray-700">
                                 Login
                             </Text>

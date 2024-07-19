@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { 
     View, 
     StyleSheet, 
@@ -11,12 +13,13 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { FIRESTORE_DB } from '../FirebaseConfig';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { AntDesign } from '@expo/vector-icons';
 
 import colors from '../Colors';
 import AddListModal from '../modals/AddListModal';
 import TodoModal from '../modals/TodoModal';
+import { signOut } from 'firebase/auth';
 
 const List = () => {
 	const [todos, setTodos] = useState<any[]>([]);
@@ -165,6 +168,10 @@ const List = () => {
         // })
     };
 
+    const handleLogout = async() => {
+        await signOut(FIREBASE_AUTH);
+    }
+
 	return (
 		<View style={styles.container}>
             <Modal 
@@ -178,6 +185,13 @@ const List = () => {
                 />
             </Modal>
 
+            <View className="flex justify-center">
+                <Pressable className="bg-red-600 py-4 px-8 rounded-xl"
+                    onPress={handleLogout}
+                >
+                    <Text className="text-white text-xl font-semibold">Logout</Text>
+                </Pressable>
+            </View>
             <View style={{flexDirection : "row"}}>
                 <View style={styles.divider} />
                 <Text style={styles.title}>
