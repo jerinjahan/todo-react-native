@@ -1,4 +1,4 @@
-//@ts-nocheck
+
 
 import { 
     View, 
@@ -20,8 +20,11 @@ import colors from '../Colors';
 import AddListModal from '../modals/AddListModal';
 import TodoModal from '../modals/TodoModal';
 import { signOut } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 const List = () => {
+    const navigation = useNavigation();
 	const [todos, setTodos] = useState<any[]>([]);
 
 	const [addTodoVisiable, setAddTodoVisiable] = useState(false);
@@ -70,7 +73,7 @@ const List = () => {
     ]);
 
     useEffect(() => {
-
+        // let userData = AsyncStorage.getItem('@user');
         // const querySnapshot = await getDocs(collection(FIRESTORE_DB, "task-lists"));
         //     querySnapshot.forEach((doc) => {
         //     console.log(`${doc.id} => ${doc.data()}`);
@@ -169,7 +172,13 @@ const List = () => {
     };
 
     const handleLogout = async() => {
-        await signOut(FIREBASE_AUTH);
+        try {
+            await signOut(FIREBASE_AUTH);
+            await AsyncStorage.removeItem('@user');
+            navigation.navigate('Welcome' as never)
+        } catch (error) {
+            
+        }
     }
 
 	return (

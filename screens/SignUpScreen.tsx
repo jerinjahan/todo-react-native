@@ -47,8 +47,8 @@ const SignUpScreen = () => {
                 <View className="flex-row justify-center">
                     <Image 
                         source={require('../assets/images/signup.png')}
-                        style={{width:200, height: 200}}
-                        className="rounded-full"
+                        // style={{width:200, height: 200}}
+                        className="rounded-full w-32 h-32"
                     />
                 </View>
             </SafeAreaView>
