@@ -18,8 +18,17 @@ const SignUpScreen = () => {
         if(name && email && password){
             try {
                 await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
+                // Redirect to another screen
+                navigation.navigate('Login' as never); // Replace 'Home' with your target screen name
             } catch (error) {
                 console.log('got error : ', error)
+                ToastAndroid.showWithGravityAndOffset(
+                    error,
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                    25,
+                    50,
+                );
             }
         }else{
             ToastAndroid.showWithGravityAndOffset(

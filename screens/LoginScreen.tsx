@@ -46,6 +46,9 @@ const LoginScreen = () => {
                 const user  = userCredential.user;
                 console.log('\n\n logged in user data => ',JSON.stringify(user));
                 await AsyncStorage.setItem('@user',JSON.stringify(user));
+
+                // Redirect to another screen
+                navigation.navigate('Home' as never); // Replace 'Home' with your target screen name
                 return user;
             } catch (error) {
                 console.log('got error => ', error.message)

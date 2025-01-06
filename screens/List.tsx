@@ -89,7 +89,7 @@ const List = () => {
                         ...doc.data()
                     });
                 });
-                // console.log('all tasks = ',todos);
+                console.log('all tasks = ',todos);
                 setLists(todos);
                 setLoading(false);
             }
